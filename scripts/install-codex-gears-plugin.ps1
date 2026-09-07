@@ -47,6 +47,12 @@ $cachePath = Join-Path $cacheRoot $version
 function Copy-PluginSource {
     param([string] $Source, [string] $Destination)
 
+    $resolvedSource = [IO.Path]::GetFullPath($Source).TrimEnd('\\')
+    $resolvedDestination = [IO.Path]::GetFullPath($Destination).TrimEnd('\\')
+    if ($resolvedSource -eq $resolvedDestination) {
+        throw "Refusing to replace the plugin source in place. Run this installer from the repository checkout."
+    }
+
     if (Test-Path -LiteralPath $Destination) {
         Remove-Item -LiteralPath $Destination -Recurse -Force
     }
