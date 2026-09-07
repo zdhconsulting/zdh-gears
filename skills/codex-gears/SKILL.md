@@ -68,3 +68,7 @@ pwsh -NoProfile -Command "Import-Module \"$env:USERPROFILE\.codex\scripts\CodexG
 - Treat this as an installable skill bundle, not a one-time local tweak.
 - Keep the bundle versioned and copy the whole `codex-gears` folder to another person’s repo or workspace.
 - Review and update both `skills/codex-gears/references` and this file when routing behavior changes.
+
+## User-facing modes
+
+ZDH Gears defaults to **Auto Selection**. It reads the actual task and selects the lightest gear that can handle it. **Boost Mode** requests the strongest Astra route. **Save Tokens Mode** favors GPT-5.6 low and fast service for bounded work, but never suppresses escalation for risky or complex tasks.

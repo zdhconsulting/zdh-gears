@@ -143,3 +143,13 @@ ZDH Gears also exposes two explicit modes:
 - **Save Tokens Mode**: an alias for low gear, using GPT-5.6 with low reasoning and fast service for bounded work when quota is tight. Risk signals still override it; a request to delete data or change authentication remains high gear.
 
 These are ZDH model modes. Codex's separate UI **Boost/Push Mode** controls orchestration pace and concurrency; it does not select a model.
+
+## The three user-facing modes
+
+ZDH Gears has three modes:
+
+- **Auto Selection (default)** reads the task and chooses the appropriate gear automatically.
+- **Boost Mode** requests the strongest Astra route (extra-high / ultra reasoning).
+- **Save Tokens Mode** favors GPT-5.6 low and fast service when the task is bounded, while risk and complexity signals still take priority.
+
+The Codex orchestration layer may store its internal acceleration state as `push`; customers do not need to manage that implementation detail.
