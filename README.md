@@ -28,6 +28,16 @@ For a customer workspace, the normal handoff is an administrator import followed
 
 After that, the customer selects ZDH Gears from Codex's plugin/source controls. GitHub is the source of updates; the workspace controls who can install and use it.
 
+## Verify the install
+
+The plugin list should show **ZDH Gears — Installed**. In a new Codex task, ask:
+
+```text
+Use ZDH Gears for this task. Before acting, tell me the selected gear, model, reasoning level, and why.
+```
+
+For a simple task, the expected result is low gear on GPT-5.6. For architecture or production-risk work, it should select Astra with high or ultra reasoning. If Codex does not report a gear decision, select ZDH Gears from the task's plugin/source controls and start a fresh task.
+
 If the customer does not have marketplace administration available, use the local clone installer below.
 
 ## Install from a clone

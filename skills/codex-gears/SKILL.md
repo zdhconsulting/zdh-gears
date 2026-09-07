@@ -11,6 +11,8 @@ Use this skill when a team or repo needs the same routing behavior as the canoni
 
 This skill provides routing guidance only. It is not a security, legal, financial, or production approval system, and it does not guarantee model behavior or outcomes.
 
+When the user asks whether routing is active, report the selected gear, model, reasoning level, service tier, and the task signals that led to the choice before beginning work.
+
 The pack contains a portable install script and reference docs for:
 
 - `Select-CodexGear` profile selection
