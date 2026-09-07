@@ -20,7 +20,7 @@ function Get-CodexGearMatrix {
         }
         standard = [pscustomobject]@{
             Profile = "standard"
-            Gear = "high"
+            Gear = "medium"
             Model = "gpt-6-astra"
             Effort = "low"
             ServiceTier = "standard"
@@ -424,10 +424,10 @@ function Select-CodexGear {
 
     $maxHits = 0
     $maxPatterns = @(
-        "\barchitecture\b", "\bsecurity\b", "\bauth\b", "\bbilling\b",
+        "\barchitecture\b", "\bsecurity\b", "\bauth\b", "\bauthentication\b", "\bauthorization\b", "\boauth\b", "\bbilling\b",
         "\bpayments?\b", "\bdatabase\b", "\bdata loss\b", "\bpermissions?\b",
         "\bstrategy\b", "\bcomplex\b", "\brace condition\b", "\bthreading\b",
-        "\bsecrets?\b", "\btokens?\b", "\bwebhooks?\b", "\bproduction-risk\b"
+        "\bsecrets?\b", "\bapi keys?\b", "\bwebhooks?\b", "\bproduction-risk\b"
     )
     foreach ($pattern in $maxPatterns) {
         if ($normalized -match $pattern) {
@@ -439,7 +439,7 @@ function Select-CodexGear {
     if ($maxHits -gt 0) { return "max" }
     if ($highHits -gt 0) { return "deep" }
     if ($score -le 0) { return "fast" }
-    if ($score -le 4) { return "deep" }
+    if ($score -le 2) { return "balanced" }
     return "deep"
 }
 

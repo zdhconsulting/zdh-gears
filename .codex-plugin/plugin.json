@@ -1,6 +1,6 @@
 {
   "name": "codex-gears",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Automatic task sizing for Codex: use a lighter GPT-5.6 profile for simple work and deeper Astra reasoning when the job needs it.",
   "author": {
     "name": "ZDH Consulting",
@@ -19,7 +19,7 @@
   "interface": {
     "displayName": "ZDH Gears",
     "shortDescription": "Automatically match Codex speed, model, and reasoning depth to the task.",
-    "longDescription": "ZDH Gears sizes each task before work begins: low gear keeps simple edits fast and economical, medium gear handles ordinary implementation, and high or extra-high gear brings Astra reasoning to architecture, debugging, and production-risk work. Explicit gear tags remain available when you want control. The result is a consistent way to reduce unnecessary heavy runs while reserving deep reasoning for work that benefits from it.",
+    "longDescription": "ZDH Gears sizes each task before work begins: low gear keeps simple edits fast and economical, medium gear handles ordinary implementation, and high or extra-high gear brings Astra reasoning to architecture, debugging, and production-risk work. The result is a consistent way to reduce unnecessary heavy runs while reserving deep reasoning for work that benefits from it.",
     "developerName": "ZDH Consulting",
     "category": "Productivity",
     "capabilities": [
