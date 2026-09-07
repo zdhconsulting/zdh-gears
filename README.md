@@ -88,4 +88,12 @@ pwsh -NoProfile -Command "Import-Module \"scripts\\CodexGear.psm1\" -Force; Sele
 
 ## Versioning
 
+To create a machine-readable selection receipt for a task:
+
+```powershell
+pwsh -NoProfile -File .\scripts\zdh-gears-route.ps1 "Design authentication and billing architecture"
+```
+
+The receipt records the selected profile and requested configuration. It intentionally remains `Applied = false` until a host launcher applies and observes the configuration.
+
 Keep `plugin.json`, the SKILL instructions, and the contract reference in sync when behavior changes.
