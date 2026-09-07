@@ -41,7 +41,7 @@ function Get-CodexGearMatrix {
             Gear = "xhigh"
             Model = "gpt-6-astra"
             Effort = "high"
-            ServiceTier = "fast"
+            ServiceTier = "standard"
             Command = "exec"
             Purpose = "Architecture, auth, security, billing, database, permissions, production-risk, or ambiguous complex failures on Astra high."
         }
