@@ -12,15 +12,15 @@ $marketplaceName = 'personal'
 $pluginSource = $null
 $scriptDir = Split-Path -Parent $PSScriptRoot
 $hasPluginMarker = Test-Path -LiteralPath (Join-Path $scriptDir '.codex-plugin\plugin.json')
-$repoRoot = Split-Path -Parent $scriptDir
-$hasRepoPluginMarker = Test-Path -LiteralPath (Join-Path $repoRoot '.codex-plugin\plugin.json')
+$detectedRepoRoot = Split-Path -Parent $scriptDir
+$hasRepoPluginMarker = Test-Path -LiteralPath (Join-Path $detectedRepoRoot '.codex-plugin\plugin.json')
 if (-not $RepoRoot) {
     if ($hasPluginMarker) {
         $pluginSource = $scriptDir
     } elseif ($hasRepoPluginMarker) {
-        $pluginSource = $repoRoot
+        $pluginSource = $detectedRepoRoot
     } else {
-        $RepoRoot = $repoRoot
+        $RepoRoot = $detectedRepoRoot
         $pluginSource = Join-Path $RepoRoot ('plugins\' + $pluginName)
     }
 } else {
@@ -53,6 +53,7 @@ function Copy-PluginSource {
 
     New-Item -ItemType Directory -Force -Path $Destination | Out-Null
     Get-ChildItem -LiteralPath $Source -Force |
+        Where-Object { $_.Name -notin @('.git', '.agents') } |
         ForEach-Object {
             Copy-Item -LiteralPath $_.FullName -Destination $Destination -Recurse -Force
         }
