@@ -106,10 +106,11 @@ To run a task through the selected gear and record whether Codex completed with 
 pwsh -NoProfile -File .\scripts\zdh-gears-exec.ps1 "Fix the failing test" -PassThru
 ```
 
-The launcher passes the selected model, reasoning effort, and service tier directly to `codex exec`. The receipt uses `verified`, `mismatch`, or `unverified` so a selection is never presented as proof of execution. For a preflight check:
+The launcher passes the selected model, reasoning effort, and service tier directly to `codex exec`. The receipt distinguishes `execution_succeeded` from `configuration_unverified`; a successful process exit is not presented as proof that the server applied the requested model or reasoning settings. For a preflight check:
 
 ```powershell
 pwsh -NoProfile -File .\scripts\zdh-gears-doctor.ps1
 ```
 
 The launcher is the enforcement path. The installed skill remains the conversational guidance path; it cannot intercept every unrelated Codex task by itself.
+

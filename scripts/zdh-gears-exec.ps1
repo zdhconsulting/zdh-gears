@@ -35,14 +35,14 @@ $parent = Split-Path -Parent $ReceiptPath
 if ($parent) { New-Item -ItemType Directory -Force -Path $parent | Out-Null }
 try {
     $receipt.Applied = $true
-    $receipt.Status = 'running'
+    $receipt.Status = 'execution_running'
     $receipt | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $ReceiptPath -Encoding UTF8
     & $CodexCommand exec @configArgs $Task
     if ($LASTEXITCODE -ne 0) { throw "Codex exited with code $LASTEXITCODE" }
-    $receipt.Status = 'verified'
+    $receipt.Status = 'execution_succeeded'
     $receipt.ObservedExitCode = 0
 } catch {
-    $receipt.Status = 'mismatch'
+    $receipt.Status = 'execution_failed'
     $receipt.Error = $_.Exception.Message
     $receipt.ObservedExitCode = if ($null -ne $LASTEXITCODE) { $LASTEXITCODE } else { 1 }
     throw
@@ -51,3 +51,4 @@ try {
     $receipt | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $ReceiptPath -Encoding UTF8
 }
 if ($PassThru) { $receipt | ConvertTo-Json -Depth 8 }
+
