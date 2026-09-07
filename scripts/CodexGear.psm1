@@ -439,7 +439,7 @@ function Select-CodexGear {
     if ($maxHits -gt 0) { return "max" }
     if ($highHits -gt 0) { return "deep" }
     if ($score -le 0) { return "fast" }
-    if ($score -le 2) { return "balanced" }
+    if ($score -le 3) { return "balanced" }
     return "deep"
 }
 

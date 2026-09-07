@@ -70,6 +70,12 @@ git clone --depth 1 --branch v1.0.0 https://github.com/zdhconsulting/zdh-gears.g
 
 ## Verification
 
+Run the packaged routing smoke test:
+
+```powershell
+pwsh -NoProfile -File .\tests\routing-smoke.ps1
+```
+
 ```powershell
 Test-Path "$env:USERPROFILE\plugins\codex-gears\.codex-plugin\plugin.json"
 ```
