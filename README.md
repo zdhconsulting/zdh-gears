@@ -153,3 +153,5 @@ ZDH Gears has three modes:
 - **Save Tokens Mode** favors GPT-5.6 low and fast service when the task is bounded, while risk and complexity signals still take priority.
 
 The Codex orchestration layer may store its internal acceleration state as `push`; customers do not need to manage that implementation detail.
+
+Save Tokens Mode is intentionally skimpier than ordinary low gear. It prefers `gpt-5.3-codex-spark` with low reasoning and fast service for bounded tasks. If the task contains meaningful risk or complexity, Auto Selection rules override the budget preference and escalate to Astra.

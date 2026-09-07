@@ -29,7 +29,7 @@ $cases = @(
     @{ Name = 'status'; Text = 'show git status'; Profile = 'fast' },
     @{ Name = 'boost mode'; Text = 'boost mode'; Profile = 'boost'; Model = 'gpt-6-astra'; Effort = 'ultra' },
     @{ Name = 'boost mode simple task'; Text = 'boost mode: rename one label'; Profile = 'boost' },
-    @{ Name = 'save tokens mode'; Text = 'save tokens mode'; Profile = 'saver'; Model = 'gpt-5.6-sol'; Effort = 'low' },
+    @{ Name = 'save tokens mode'; Text = 'save tokens mode'; Profile = 'saver'; Model = 'gpt-5.3-codex-spark'; Effort = 'low' },
     @{ Name = 'save tokens simple task'; Text = 'save tokens mode: rename the authentication heading in README'; Profile = 'saver' },
     @{ Name = 'save tokens risk precedence'; Text = 'save tokens mode: delete the customer records'; Profile = 'max' },
     @{ Name = 'save tokens debug precedence'; Text = 'save tokens mode: debug failing tests'; Profile = 'deep' },
@@ -49,8 +49,8 @@ foreach ($case in $cases) {
 
 foreach ($aliasCase in @(
     @{ Alias = 'boost'; Target = 'max' },
-    @{ Alias = 'saver'; Target = 'fast' },
-    @{ Alias = 'save-tokens'; Target = 'fast' }
+    @{ Alias = 'saver'; Target = 'saver' },
+    @{ Alias = 'save-tokens'; Target = 'saver' }
 )) {
     $aliasGear = Get-CodexGear -Profile $aliasCase.Alias
     $targetGear = Get-CodexGear -Profile $aliasCase.Target
@@ -59,3 +59,4 @@ foreach ($aliasCase in @(
         if ($aliasGear.$property -ne $targetGear.$property) { throw "$($aliasCase.Alias): $property differs from $($aliasCase.Target)." }
     }
 }
+

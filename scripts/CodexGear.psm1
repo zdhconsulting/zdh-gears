@@ -57,14 +57,14 @@ function Get-CodexGearMatrix {
     }
     foreach ($alias in @(
         @{ Name = 'boost'; Target = 'max'; Purpose = 'Boost mode: Astra with ultra reasoning.' },
-        @{ Name = 'saver'; Target = 'fast'; Purpose = 'Save Tokens mode: GPT-5.6 with low reasoning for bounded work.' },
-        @{ Name = 'save-tokens'; Target = 'fast'; Purpose = 'Alias for Save Tokens mode.' }
+        @{ Name = 'saver'; Target = 'fast'; Model = 'gpt-5.3-codex-spark'; Purpose = 'Save Tokens mode: Spark with low reasoning and fast service for bounded work.' },
+        @{ Name = 'save-tokens'; Target = 'fast'; Model = 'gpt-5.3-codex-spark'; Purpose = 'Alias for Save Tokens mode.' }
     )) {
         $target = $matrix[$alias.Target]
         $matrix[$alias.Name] = [pscustomobject]@{
             Profile = $alias.Name
             Gear = $target.Gear
-            Model = $target.Model
+            Model = if ($alias.Model) { $alias.Model } else { $target.Model }
             Effort = $target.Effort
             ServiceTier = $target.ServiceTier
             Command = $target.Command
@@ -1046,5 +1046,7 @@ function New-CodexConfigArgs {
 }
 
 Export-ModuleMember -Function Get-CodexGearMatrix, Get-CodexGear, Select-CodexGear, Select-AiWorkRoute, Select-ChatGatewayRoute, Select-AiProviderRoute, ConvertTo-ChatGatewayTaskText, Get-ChatGatewayTaskKey, Test-ChatGatewayFreshnessSensitive, Get-ChatGatewayCacheEntry, Get-ChatGatewaySavingsEstimate, New-ChatGatewayHybridSplit, Get-CodexLatestTokenSnapshot, Get-CodexExecutable, New-CodexConfigArgs
+
+
 
 
