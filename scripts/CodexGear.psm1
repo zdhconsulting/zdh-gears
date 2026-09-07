@@ -3,44 +3,44 @@ function Get-CodexGearMatrix {
         fast = [pscustomobject]@{
             Profile = "fast"
             Gear = "low"
-            Model = "gpt-5.6-luna"
-            Effort = "high"
+            Model = "gpt-5.6-sol"
+            Effort = "low"
             ServiceTier = "fast"
             Command = "exec"
-            Purpose = "Low-scope work label only: simple coding, status checks, typos, copy, links, and obvious one-file fixes still run on gpt-5.6-sol with high reasoning."
+            Purpose = "Low-scope work on GPT-5.6 with low reasoning: simple coding, status checks, typos, copy, links, and obvious one-file fixes."
         }
         balanced = [pscustomobject]@{
             Profile = "balanced"
             Gear = "high"
-            Model = "gpt-5.6-sol"
-            Effort = "high"
-            ServiceTier = "fast"
+            Model = "gpt-6-astra"
+            Effort = "low"
+            ServiceTier = "standard"
             Command = "exec"
-            Purpose = "Compatibility alias for high gear. Normal implementation work now runs on gpt-5.6-sol with high reasoning."
+            Purpose = "Compatibility alias for medium gear. Normal implementation work runs on Astra with low reasoning."
         }
         standard = [pscustomobject]@{
             Profile = "standard"
             Gear = "high"
-            Model = "gpt-5.6-sol"
-            Effort = "high"
+            Model = "gpt-6-astra"
+            Effort = "low"
             ServiceTier = "standard"
             Command = "exec"
-            Purpose = "Clear name for normal implementation work; equivalent to high gear with high reasoning."
+            Purpose = "Clear name for medium gear: normal implementation work on Astra with low reasoning."
         }
         deep = [pscustomobject]@{
             Profile = "deep"
             Gear = "high"
-            Model = "gpt-5.6-sol"
+            Model = "gpt-6-astra"
             Effort = "high"
-            ServiceTier = "fast"
+            ServiceTier = "standard"
             Command = "exec"
-            Purpose = "Debugging, CI/test failures, regressions, multi-file work, deploy problems, and verification-heavy tasks."
+            Purpose = "High gear on Astra with high reasoning for debugging, CI/test failures, regressions, multi-file work, deploy problems, and verification-heavy tasks."
         }
         max = [pscustomobject]@{
             Profile = "max"
             Gear = "xhigh"
             Model = "gpt-6-astra"
-            Effort = "high"
+            Effort = "ultra"
             ServiceTier = "standard"
             Command = "exec"
             Purpose = "Architecture, auth, security, billing, database, permissions, production-risk, or ambiguous complex failures on Astra high."
@@ -48,11 +48,11 @@ function Get-CodexGearMatrix {
         review = [pscustomobject]@{
             Profile = "review"
             Gear = "review"
-            Model = "gpt-5.6-sol"
+            Model = "gpt-6-astra"
             Effort = "high"
             ServiceTier = "fast"
             Command = "exec"
-            Purpose = "Explicit code review, PR review, diff review, or commit review on gpt-5.6-sol with high reasoning."
+            Purpose = "High gear on Astra with high reasoning for explicit code review, PR review, diff review, or commit review."
         }
     }
     return $matrix
