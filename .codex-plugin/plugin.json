@@ -1,6 +1,6 @@
 {
   "name": "codex-gears",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Automatic task sizing for Codex: use a lighter GPT-5.6 profile for simple work and deeper Astra reasoning when the job needs it.",
   "author": {
     "name": "ZDH Consulting",
@@ -31,5 +31,6 @@
       "Use ZDH Gears to choose the right speed and reasoning depth for this task."
     ],
     "brandColor": "#2563EB"
-  }
+  },
+  "icon": "./assets/zdh-gears-icon.svg"
 }

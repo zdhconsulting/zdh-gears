@@ -114,3 +114,32 @@ pwsh -NoProfile -File .\scripts\zdh-gears-doctor.ps1
 
 The launcher is the enforcement path. The installed skill remains the conversational guidance path; it cannot intercept every unrelated Codex task by itself.
 
+
+## Updating and measuring a run
+
+Update through the same marketplace source so the installed version stays aligned with the release:
+
+```powershell
+codex plugin marketplace upgrade zdh-gears
+codex plugin remove codex-gears@zdh-gears --json
+codex plugin add codex-gears@zdh-gears --json
+```
+
+Each launcher invocation gets a unique receipt. To attach observed usage, provide the exact Codex session log and receipt run ID; the usage helper refuses to guess from an unrelated recent session:
+
+```powershell
+pwsh -NoProfile -File .\scripts\zdh-gears-usage.ps1 -SessionPath .\session.json -RunId <run-id>
+```
+
+A usage result of `unavailable` means the host did not expose a matching record. It is not treated as zero usage or as proof of savings.
+
+The square ZDH mark is packaged as `assets/zdh-gears-icon.svg`; the listing uses the manifest icon field where supported by the host.
+
+## Gear modes
+
+ZDH Gears also exposes two explicit modes:
+
+- **Boost Mode**: an alias for extra-high gear, using Astra with ultra reasoning for the hardest work.
+- **Save Tokens Mode**: an alias for low gear, using GPT-5.6 with low reasoning and fast service for bounded work when quota is tight. Risk signals still override it; a request to delete data or change authentication remains high gear.
+
+These are ZDH model modes. Codex's separate UI **Boost/Push Mode** controls orchestration pace and concurrency; it does not select a model.
