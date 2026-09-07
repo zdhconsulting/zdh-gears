@@ -55,6 +55,22 @@ function Get-CodexGearMatrix {
             Purpose = "High gear on Astra with high reasoning for explicit code review, PR review, diff review, or commit review."
         }
     }
+    foreach ($alias in @(
+        @{ Name = 'boost'; Target = 'max'; Purpose = 'Boost mode: Astra with ultra reasoning.' },
+        @{ Name = 'saver'; Target = 'fast'; Purpose = 'Save Tokens mode: GPT-5.6 with low reasoning for bounded work.' },
+        @{ Name = 'save-tokens'; Target = 'fast'; Purpose = 'Alias for Save Tokens mode.' }
+    )) {
+        $target = $matrix[$alias.Target]
+        $matrix[$alias.Name] = [pscustomobject]@{
+            Profile = $alias.Name
+            Gear = $target.Gear
+            Model = $target.Model
+            Effort = $target.Effort
+            ServiceTier = $target.ServiceTier
+            Command = $target.Command
+            Purpose = $alias.Purpose
+        }
+    }
     return $matrix
 }
 
@@ -380,29 +396,41 @@ function Select-CodexGear {
         [string] $Text
     )
 
-    $normalized = $Text.ToLowerInvariant()
+    $normalized = ($Text -replace '\s+', ' ').Trim().ToLowerInvariant()
+    # Boost is an explicit request for the deepest configuration. Saver remains
+    # subordinate to task complexity and risk; it only changes a low-scope route.
+    if ($normalized -match '\bboost mode\b') { return 'boost' }
+    $saveTokensMode = $normalized -match '\bsave[- ]tokens mode\b'
+    $lowProfile = if ($saveTokensMode) { 'saver' } else { 'fast' }
+    if ($saveTokensMode) {
+        $normalized = ($normalized -replace '\bsave[- ]tokens mode\b[: ,.-]*', '').Trim()
+    }
     $explicitReview =
         $normalized -match "\b(code|pr|pull request|diff|commit)\s+review\b" -or
         $normalized -match "\breview\s+(the\s+|this\s+)?(code|pr|pull request|diff|commit|changes)\b"
-    if ($explicitReview) {
-        return "review"
+
+    # Destructive actions and intrinsically difficult work take precedence over
+    # review intent, cosmetic wording, and requests to be quick or use low gear.
+    if ($normalized -match '\b(delete|deleting|deletion|purge|wipe|truncate|drop|destroy|erase)\b' -or
+        $normalized -match '\b(remove|removing)\b.*\b(records?|data|tables?|accounts?|backups?|directories|files?)\b' -or
+        $normalized -match '\b(distributed consensus|consensus algorithm|raft|paxos|byzantine|race condition|threading|data loss|production[- ]risk)\b') {
+        return 'max'
+    }
+
+    # A bounded presentation edit can mention a sensitive topic without changing
+    # that system. Require a whole-task match and reject additional actions.
+    $surfaceEdit = $normalized -match '^(?:please )?(?:rename|reword|change|fix|correct|update)\s+(?:(?:the|a|one|single)\s+)?(?:[\w-]+\s+){0,3}(?:heading|label|title|typo|spelling|text|copy|color|spacing)(?:\s+(?:in|on|from|to)\s+[^.;!?]+)?[.!]?$'
+    $additionalWork = $normalized -match '\b(and|then|also|plus|implement|design|build|create|enable|disable|bypass|grant|revoke|deploy|migrate|refactor|debug|rotate|reset|replace|across|all|code|logic|behavior|execute|vulnerability|flaw|failure|failing|regression)\b|[;&]'
+    if ($surfaceEdit -and -not $additionalWork -and -not $explicitReview) {
+        return $lowProfile
     }
 
     $score = 0
 
-    $lowPatterns = @(
-        "\btypo\b", "\bcopy\b", "\btext change\b", "\blink\b", "\bbutton\b",
-        "\bcolor\b", "\bspacing\b", "\brename\b", "\bstatus\b", "\bquick\b",
-        "\bshow me\b", "\blist\b", "\bdoes .* exist\b", "\bcheck whether\b"
-    )
-    foreach ($pattern in $lowPatterns) {
-        if ($normalized -match $pattern) { $score -= 1 }
-    }
-
     $mediumPatterns = @(
         "\badd\b", "\bbuild\b", "\bcreate\b", "\bfix\b", "\bform\b",
         "\bpage\b", "\bcomponent\b", "\bstyle\b", "\bmobile\b", "\bresponsive\b",
-        "\bscript\b", "\bhelper\b", "\bintegrate\b", "\bwire\b"
+        "\bscript\b", "\bhelper\b", "\bintegrate\b", "\bwire\b", "\bimplement\b"
     )
     foreach ($pattern in $mediumPatterns) {
         if ($normalized -match $pattern) { $score += 1 }
@@ -436,9 +464,20 @@ function Select-CodexGear {
         }
     }
 
-    if ($maxHits -gt 0) { return "max" }
+    # Sensitive nouns alone are not execution intent (e.g. 'authentication').
+    # Require a substantive action or an explicit failure/risk signal.
+    $substantiveWork = $normalized -match '\b(add|build|create|fix|implement|design|change|update|configure|enable|disable|integrate|wire|migrate|migration|refactor|debug|review|audit|verify|test|rotate|reset|replace|deploy|grant|revoke|bypass|repair|investigate|resolve)\b'
+    $riskSignal = $normalized -match '\b(failing|regression|vulnerability|breach|outage|crash|race condition|data loss|production[- ]risk)\b'
+    if ($maxHits -gt 0 -and ($substantiveWork -or $riskSignal)) { return "max" }
+    if ($explicitReview) { return 'review' }
     if ($highHits -gt 0) { return "deep" }
-    if ($score -le 0) { return "fast" }
+    # Fast is an allowlist, not the absence of recognized difficult keywords.
+    $simpleRead = $normalized -match '^(?:please )?(?:show me|list|check whether|does)\b.*\b(?:files?|folders?|labels?|links?|status|exist)\b[?.]?$' -or
+        $normalized -match '^(?:please )?(?:show |check |get )?(?:the )?(?:git |build |task )?status[?.]?$'
+    if ($simpleRead -and -not $substantiveWork -and -not $additionalWork -and $maxHits -eq 0) { return $lowProfile }
+    if ($saveTokensMode -and $score -eq 0 -and $maxHits -eq 0 -and -not $substantiveWork) { return 'saver' }
+    # Unknown and underspecified requests retain Astra instead of silently
+    # downgrading to the low-scope model.
     if ($score -le 3) { return "balanced" }
     return "deep"
 }
