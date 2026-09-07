@@ -1,6 +1,6 @@
 ---
 name: codex-gears
-description: High-confidence, shareable routing profile pack for Codex gear selection and provider policy.
+description: Automatically match Codex speed, model, and reasoning depth to task complexity while reserving deeper runs for work that needs them.
 ---
 
 # ZDH Gears Share Pack

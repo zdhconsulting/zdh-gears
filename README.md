@@ -2,7 +2,7 @@
 
 ![ZDH Gears](assets/codex-gears-logo.svg)
 
-The plugin exposes the **ZDH Gears** skill pack as a portable package.
+ZDH Gears is an automatic task-sizing layer for Codex. It chooses a lighter profile for simple work and deeper reasoning for complex or high-risk work, helping control speed and token use without making every task run at maximum depth.
 
 ZDH Gears is a routing aid. It does not guarantee correctness, security, legal compliance, cost savings, or a particular model or response time. Review generated changes and keep normal project, account, and production approvals in place.
 

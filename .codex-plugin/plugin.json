@@ -1,7 +1,7 @@
 {
   "name": "codex-gears",
   "version": "1.0.0",
-  "description": "High-class ZDH gear routing pack for shareable local-first policy and route selection.",
+  "description": "Automatic task sizing for Codex: use a lighter GPT-5.6 profile for simple work and deeper Astra reasoning when the job needs it.",
   "author": {
     "name": "ZDH Consulting",
     "email": "zev@zdhconsulting.com",
@@ -18,17 +18,17 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "ZDH Gears",
-    "shortDescription": "Portable routing policy package for local-first Codex gear selection and local-only execution discipline.",
-    "longDescription": "This plugin adds a compact but complete routing policy package: conflict-aware gear selection, local-only execution safeguards, and deterministic provider override behavior. It is intended to be copyable and installable in other workspaces or teams with no local policy drift.",
+    "shortDescription": "Automatically match Codex speed, model, and reasoning depth to the task.",
+    "longDescription": "ZDH Gears sizes each task before work begins: low gear keeps simple edits fast and economical, medium gear handles ordinary implementation, and high or extra-high gear brings Astra reasoning to architecture, debugging, and production-risk work. Explicit gear tags remain available when you want control. The result is a consistent way to reduce unnecessary heavy runs while reserving deep reasoning for work that benefits from it.",
     "developerName": "ZDH Consulting",
     "category": "Productivity",
     "capabilities": [
-      "Routing",
-      "Policy",
-      "Automation"
+      "Automatic task sizing",
+      "Speed and reasoning control",
+      "Token-aware routing"
     ],
     "defaultPrompt": [
-      "Apply ZDH Gears for consistent local/remote routing decisions and local-only handling."
+      "Use ZDH Gears to choose the right speed and reasoning depth for this task."
     ],
     "brandColor": "#2563EB"
   }
