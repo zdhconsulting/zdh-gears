@@ -2,156 +2,86 @@
 
 ![ZDH Gears](assets/codex-gears-logo.svg)
 
-ZDH Gears is an automatic task-sizing layer for Codex. It chooses a lighter profile for simple work and deeper reasoning for complex or high-risk work, helping control speed and token use without making every task run at maximum depth.
+ZDH Gears is a three-mode routing skill and launcher for Codex. It selects a requested model, reasoning effort, and service tier from the task text, while leaving normal project, account, security, and production controls in place.
 
-ZDH Gears is a routing aid. It does not guarantee correctness, security, legal compliance, cost savings, or a particular model or response time. Review generated changes and keep normal project, account, and production approvals in place.
+## Routing policy
 
-The model policy is intentional: low gear uses GPT-5.6 with low reasoning, medium gear uses Astra with low reasoning, high gear uses Astra with high reasoning, and extra-high gear uses Astra with ultra reasoning. GPT-5.5 is not part of this package.
+**Auto Selection** is the default:
 
-The package is local-first: it does not upload project files or secrets by itself. Its optional telemetry helper reads local Codex session metadata to estimate token usage; it does not send that data anywhere.
+| Task profile | Requested configuration |
+| --- | --- |
+| `fast` | `gpt-5.6-sol`, low reasoning, fast service |
+| `balanced` / `standard` | `gpt-6-astra`, low reasoning, standard service |
+| `deep` / `review` | `gpt-6-astra`, high reasoning, standard service |
+| `max` | `gpt-6-astra`, ultra reasoning, standard service |
 
-## What it ships
+The other two public modes are:
 
-- `codex-gears` skill bundle in `skills/codex-gears`
-- Local-only routing lock-down behavior
-- Conflict-aware gear profile resolution
-- Deterministic provider override precedence
-- Versioned share manifest support (`codex-gears.share.json`)
+- **Boost Mode**: requests `gpt-6-astra`, ultra reasoning, fast service. Fast is the service tier; Boost retains ultra reasoning.
+- **Save Tokens Mode** selects a standard-service saver profile from the task:
+  - `saver` / `save-tokens`: `gpt-5.3-codex-spark`, low reasoning, for mechanical tasks.
+  - `saver-compact`: `gpt-5.6-luna`, low reasoning, for positively identified bounded implementation such as adding one contact form.
+  - `saver-work`: `gpt-5.6-sol`, low reasoning, for explicitly bounded debugging such as one failing unit test, helper, or component.
+  - `saver-risk`: `gpt-6-astra`, high reasoning, for architecture, security, destructive, production, migration, or broad work.
 
-## Customer install (recommended)
+Unknown or underspecified work remains on the balanced `gpt-6-astra` low profile, and substantive code review remains on the `gpt-6-astra` high review profile. All Save Tokens profiles use standard service.
 
-For a customer workspace, the normal handoff is an administrator import followed by one install click:
+Use `-Mode auto|boost|save-tokens` for an unambiguous selection that applies to one launcher invocation. A recognized leading imperative mode phrase in task text also selects once for that invocation; descriptions and negations elsewhere in the task do not activate a mode. ZDH Gears does not intercept later turns or persist a mode across tasks. An installed skill supplies guidance; it cannot change the model of an already active chat.
 
-1. Open **Workspace settings → Plugins → Add → Import marketplace**.
-2. Enter `https://github.com/zdhconsulting/zdh-gears` as the GitHub repository URL. Leave Path empty.
-3. Import the marketplace, open **ZDH Gears**, and select **Install**.
+Gears model **Boost** is separate from the `agent-work-modes` scheduling state sometimes called Push Mode. Scheduling controls pace and concurrency; ZDH Gears controls the requested model configuration. Installing or invoking ZDH Gears does not change scheduling, and the only public Gears modes are Auto Selection, Boost Mode, and Save Tokens Mode.
 
-After that, the customer selects ZDH Gears from Codex's plugin/source controls. GitHub is the source of updates; the workspace controls who can install and use it.
+ZDH Gears does not include an automatic capacity-aware model chooser or fallback retry system. It has no knowledge of account cost or token percentages and does not measure or promise quantified savings. The listed model IDs and low reasoning effort were validated against one local advertised `models_cache`; that does not prove availability for another account.
 
-## Verify the install
+## Install
 
-The plugin list should show **ZDH Gears — Installed**. In a new Codex task, ask:
-
-```text
-Use ZDH Gears for this task. Before acting, tell me the selected gear, model, reasoning level, and why.
-```
-
-For a simple task, the expected result is low gear on GPT-5.6. For architecture or production-risk work, it should select Astra with high or ultra reasoning. If Codex does not report a gear decision, select ZDH Gears from the task's plugin/source controls and start a fresh task.
-
-If the customer does not have marketplace administration available, use the local clone installer below.
-
-## Install from a clone
-
-From a machine with this repository:
+PowerShell 7 (`pwsh`) is required for the included scripts and tests. Install from the native Codex plugin marketplace CLI:
 
 ```powershell
-git clone https://github.com/zdhconsulting/zdh-gears.git
-Set-Location .\zdh-gears
-& ".\scripts\install-codex-gears-plugin.ps1"
-```
-
-## Install from GitHub
-
-The repository is public, so teammates can install it with a normal clone and one command:
-
-```powershell
-git clone https://github.com/zdhconsulting/zdh-gears.git
-Set-Location .\zdh-gears
-& ".\scripts\install-codex-gears-plugin.ps1"
-```
-
-Then restart Codex Desktop or open a fresh session so the plugin is discovered.
-
-In other repos, you can add the same install command in onboarding docs and keep `zdh-gears` pinned by tag:
-
-```powershell
-git clone --depth 1 --branch v1.0.0 https://github.com/zdhconsulting/zdh-gears.git
-```
-
-## Verification
-
-Run the packaged routing smoke test:
-
-```powershell
-pwsh -NoProfile -File .\tests\routing-smoke.ps1
-```
-
-```powershell
-Test-Path "$env:USERPROFILE\plugins\codex-gears\.codex-plugin\plugin.json"
-```
-
-If you only need routing validation in a project where a full test harness is not present:
-
-```powershell
-pwsh -NoProfile -Command "Import-Module \"scripts\\CodexGear.psm1\" -Force; Select-AiProviderRoute -Text \"local only: validate this bug report\""
-```
-
-## Versioning
-
-To create a machine-readable selection receipt for a task:
-
-```powershell
-pwsh -NoProfile -File .\scripts\zdh-gears-route.ps1 "Design authentication and billing architecture"
-```
-
-The receipt records the selected profile and requested configuration. It intentionally remains `Applied = false` until a host launcher applies and observes the configuration.
-
-Keep `plugin.json`, the SKILL instructions, and the contract reference in sync when behavior changes.
-
-## Direct execution and diagnostics
-
-To run a task through the selected gear and record whether Codex completed with that configuration:
-
-```powershell
-pwsh -NoProfile -File .\scripts\zdh-gears-exec.ps1 "Fix the failing test" -PassThru
-```
-
-The launcher passes the selected model, reasoning effort, and service tier directly to `codex exec`. The receipt distinguishes `execution_succeeded` from `configuration_unverified`; a successful process exit is not presented as proof that the server applied the requested model or reasoning settings. For a preflight check:
-
-```powershell
-pwsh -NoProfile -File .\scripts\zdh-gears-doctor.ps1
-```
-
-The launcher is the enforcement path. The installed skill remains the conversational guidance path; it cannot intercept every unrelated Codex task by itself.
-
-
-## Updating and measuring a run
-
-Update through the same marketplace source so the installed version stays aligned with the release:
-
-```powershell
-codex plugin marketplace upgrade zdh-gears
-codex plugin remove codex-gears@zdh-gears --json
+codex plugin marketplace add https://github.com/zdhconsulting/zdh-gears.git
 codex plugin add codex-gears@zdh-gears --json
 ```
 
-Each launcher invocation gets a unique receipt. To attach observed usage, provide the exact Codex session log and receipt run ID; the usage helper refuses to guess from an unrelated recent session:
+Start a fresh Codex task after installation so the new skill is discovered. The plugin does not copy over `%USERPROFILE%\.codex\scripts\CodexGear.psm1`.
+
+## Update
 
 ```powershell
-pwsh -NoProfile -File .\scripts\zdh-gears-usage.ps1 -SessionPath .\session.json -RunId <run-id>
+codex plugin marketplace upgrade zdh-gears
+codex plugin add codex-gears@zdh-gears --json
 ```
 
-A usage result of `unavailable` means the host did not expose a matching record. It is not treated as zero usage or as proof of savings.
+There is no mandatory remove step. Start a fresh task after updating. If a release must be rolled back, select the previous `v1.5.2` release (which retains the issues fixed here) through the marketplace workflow.
 
-The square ZDH mark is packaged as `assets/zdh-gears-icon.svg`; the listing uses the manifest icon field where supported by the host.
+## Run and verify
 
-## Gear modes
+From a clone or the installed package root, preview a route without launching Codex:
 
-ZDH Gears also exposes two explicit modes:
+```powershell
+pwsh -NoProfile -File .\scripts\zdh-gears-exec.ps1 -Mode auto -DryRun "Fix the failing test"
+```
 
-- **Boost Mode**: an alias for extra-high gear, using Astra with ultra reasoning for the hardest work.
-- **Save Tokens Mode**: an alias for low gear, using GPT-5.6 with low reasoning and fast service for bounded work when quota is tight. Risk signals still override it; a request to delete data or change authentication remains high gear.
+Run the repository validation suite:
 
-These are ZDH model modes. Codex's separate UI **Boost/Push Mode** controls orchestration pace and concurrency; it does not select a model.
+```powershell
+pwsh -NoProfile -File .\tests\run-tests.ps1
+```
 
-## The three user-facing modes
+To execute the task through the launcher, omit `-DryRun`. When calling `pwsh -File` with task text that starts with a dash, pass it as `-Task:"--your task text"` so PowerShell treats it as a value. The launcher then sends the prompt through stdin to Codex.
 
-ZDH Gears has three modes:
+The suite covers routing, launcher execution with a test double, receipts, installation, usage parsing and package validation. It does not spend model usage.
 
-- **Auto Selection (default)** reads the task and chooses the appropriate gear automatically.
-- **Boost Mode** requests the strongest Astra route (extra-high / ultra reasoning).
-- **Save Tokens Mode** favors GPT-5.6 low and fast service when the task is bounded, while risk and complexity signals still take priority.
+Every routing or execution receipt has a unique ID. Execution receipts keep process outcome separate from configuration evidence: `RequestedConfiguration` records what the launcher asked for, `ObservedConfiguration` records only what the host actually exposed, and the current launcher records `ConfigurationStatus = unverified`, `Applied = false`, and `ObservedConfiguration = null` regardless of process exit. A successful process exit does not prove the backend applied a requested model, reasoning effort, or service tier. `-DryRun` returns the selected receipt without launching Codex.
 
-The Codex orchestration layer may store its internal acceleration state as `push`; customers do not need to manage that implementation detail.
+The usage helper accepts only an exact run/session ID and a supplied record containing valid usage data:
 
-Save Tokens Mode is intentionally skimpier than ordinary low gear. It prefers `gpt-5.3-codex-spark` with low reasoning and fast service for bounded tasks. If the task contains meaningful risk or complexity, Auto Selection rules override the budget preference and escalate to Astra.
+```powershell
+pwsh -NoProfile -File .\scripts\zdh-gears-usage.ps1 -SessionPath .\session.json -RunId <matching-record-id>
+```
+
+The current launcher does not correlate its receipt with a Codex session, so token measurement remains dependent on a separately available matching record. Do not treat `unavailable` as zero usage or as evidence of savings.
+
+## Package identity
+
+The bundled manifest binds the listing icon to `assets/zdh-gears-icon.svg`. That verifies package metadata and asset inclusion. Whether a particular Codex client visibly renders that logo in its marketplace listing requires observation in that client and should be reported separately.
+
+The source contract is documented in [skills/codex-gears/references/codex-gears-pack-contract.md](skills/codex-gears/references/codex-gears-pack-contract.md).

@@ -1,74 +1,60 @@
 ---
 name: codex-gears
-description: Automatically match Codex speed, model, and reasoning depth to task complexity while reserving deeper runs for work that needs them.
+description: Select one of three public Codex routing modes from the current task and report the requested configuration without claiming unobserved backend state.
 ---
 
-# ZDH Gears Share Pack
+# ZDH Gears
 
 [![ZDH Gears](assets/codex-gears-logo.svg)](assets/codex-gears-logo.svg)
 
-Use this skill when a team or repo needs the same routing behavior as the canonical Codex gear system without re-implementing the logic manually.
+Use this skill to choose and explain the requested Codex model configuration for the current task. It is routing guidance plus an optional launcher; installing the skill does not change the model of an active chat.
 
-This skill provides routing guidance only. It is not a security, legal, financial, or production approval system, and it does not guarantee model behavior or outcomes.
+## Public modes
 
-When the user asks whether routing is active, report the selected gear, model, reasoning level, service tier, and the task signals that led to the choice before beginning work.
+- **Auto Selection** (default) selects from the task: `fast` = `gpt-5.6-sol`, low, fast; `balanced` / `standard` = `gpt-6-astra`, low, standard; `deep` / `review` = `gpt-6-astra`, high, standard; `max` = `gpt-6-astra`, ultra, standard.
+- **Boost Mode** requests `gpt-6-astra`, ultra reasoning, fast service. Fast is the service tier; never downgrade Boost's model or reasoning because the user asks for fast mode.
+- **Save Tokens Mode** uses standard service throughout. Select `saver` / `save-tokens` (`gpt-5.3-codex-spark`, low) for mechanical tasks; `saver-compact` (`gpt-5.6-luna`, low) for positively identified bounded implementation; `saver-work` (`gpt-5.6-sol`, low) for explicitly bounded debugging of one test, helper, or component; and `saver-risk` (`gpt-6-astra`, high) for architecture, security, destructive, production, migration, or broad work. Unknown or underspecified work stays on balanced Astra low. Substantive code review stays on Astra high review.
 
-Choose the gear from the full task text. A user's opening request for “low,” “high,” or another gear is context only and must not override the complexity, risk, files, tools, or verification required by the actual task.
+Use `-Mode auto|boost|save-tokens` as the unambiguous per-invocation option. A recognized leading imperative mode phrase in task text also applies to that invocation only; descriptions and negations elsewhere do not activate it. Do not claim per-turn interception or persistence. Choose from the full task, including risk, scope, tools, and verification needs. Auto Selection routes deadlock work to `max`; Save Tokens maps that risk to `saver-risk`.
 
-The pack contains a portable install script and reference docs for:
+Gears Boost controls the requested model configuration. The separate `agent-work-modes` Push Mode controls scheduling pace and concurrency. Do not change or describe scheduling state as a fourth Gears mode.
 
-- `Select-CodexGear` profile selection
-- `Select-CodexGear` mixed-tag conflict handling
-- `Select-AiWorkRoute` local-only guardrails
-- `Select-ChatGatewayRoute` provider suppression rules
-- `Select-AiProviderRoute` provider override precedence
+There is no capacity-aware model chooser or automatic fallback retry, and there are no measured or guaranteed token-savings figures or account-cost knowledge. The model IDs and low effort were validated in one local advertised `models_cache`; do not treat that as proof of another account's availability or as backend configuration verification.
 
-## What this gives you
+## Saving workflow
 
-After installation, your host has the same route matrix and tests behavior currently used by this repo.
+Keep output concise, read only the relevant files or ranges, reuse existing evidence, and create parallel workers only when necessary. Always perform the verification required by the change; Save Tokens Mode never justifies skipping it.
 
-## Install in a new machine/worktree
+## Reporting
 
-From this repository checkout, run:
+Before acting when the user asks for a routing report, state the selected profile, requested model, reasoning effort, service tier, and decisive task signals.
 
-```powershell
-& "skills\codex-gears\scripts\install-codex-gears.ps1"
-```
+Each receipt must have a unique ID. Keep `RequestedConfiguration`, `ObservedConfiguration`, `ConfigurationStatus`, and process status distinct. The current launcher records `ConfigurationStatus = unverified`, `Applied = false`, and `ObservedConfiguration = null` regardless of process exit; process success alone is not backend configuration proof. `-DryRun` returns a selected receipt without launching Codex.
 
-Optional:
+Token usage is observable only when the usage helper receives an exact run/session ID and a matching supplied record with valid usage data. The current launcher does not correlate its receipt to a Codex session, so do not claim token measurement is working without that dependency.
 
-```powershell
-& "skills\codex-gears\scripts\install-codex-gears.ps1" -CodexHome "C:\Users\YOU\.codex" -SourceModulePath "C:\path\to\CodexGear.psm1"
-```
+## Install and validate
 
-The installer performs:
-
-1. Copies `CodexGear.psm1` into `%USERPROFILE%\.codex\scripts`.
-2. Writes a small share manifest (`codex-gears.share.json`) so you can track what version was installed.
-3. Emits the exact command to run the core routing test.
-
-The bundle is also available as a plugin-style package in `plugins/codex-gears`.
-
-## Verification
-
-After install, run:
+PowerShell 7 (`pwsh`) is required.
 
 ```powershell
-& "$env:USERPROFILE\.codex\scripts\codex-gear-test.ps1"  # if you also installed the full script set
+codex plugin marketplace add https://github.com/zdhconsulting/zdh-gears.git
+codex plugin add codex-gears@zdh-gears --json
 ```
 
-Or at minimum:
+For updates:
 
 ```powershell
-pwsh -NoProfile -Command "Import-Module \"$env:USERPROFILE\.codex\scripts\CodexGear.psm1\" -Force; Select-CodexGear -Text 'local only draft a short email'"
+codex plugin marketplace upgrade zdh-gears
+codex plugin add codex-gears@zdh-gears --json
 ```
 
-## Shareability notes
+Do not require a remove step and do not copy over `%USERPROFILE%\.codex\scripts\CodexGear.psm1`. Start a fresh task after installing or updating.
 
-- Treat this as an installable skill bundle, not a one-time local tweak.
-- Keep the bundle versioned and copy the whole `codex-gears` folder to another person’s repo or workspace.
-- Review and update both `skills/codex-gears/references` and this file when routing behavior changes.
+```powershell
+pwsh -NoProfile -File .\tests\run-tests.ps1
+```
 
-## User-facing modes
+The bundled manifest binding for the logo proves package metadata and inclusion. A visually rendered marketplace logo is verified only by observing it in the client.
 
-ZDH Gears defaults to **Auto Selection**. It reads the actual task and selects the lightest gear that can handle it. **Boost Mode** requests the strongest Astra route. **Save Tokens Mode** favors GPT-5.6 low and fast service for bounded work, but never suppresses escalation for risky or complex tasks.
+See [references/codex-gears-pack-contract.md](references/codex-gears-pack-contract.md) for the source-anchored contract.

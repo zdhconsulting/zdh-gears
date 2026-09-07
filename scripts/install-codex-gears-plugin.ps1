@@ -1,151 +1,37 @@
-param(
-    [string] $CodexHome = (Join-Path $env:USERPROFILE '.codex'),
-    [string] $UserPluginRoot = (Join-Path $env:USERPROFILE 'plugins'),
-    [string] $PersonalMarketplaceRoot = (Join-Path $env:USERPROFILE '.agents\plugins'),
-    [string] $RepoRoot = ''
-)
-
+[CmdletBinding()]
+param([switch] $Update, [string] $CodexCommand = 'codex')
 $ErrorActionPreference = 'Stop'
-
-$pluginName = 'codex-gears'
-$marketplaceName = 'personal'
-$pluginSource = $null
-$scriptDir = Split-Path -Parent $PSScriptRoot
-$hasPluginMarker = Test-Path -LiteralPath (Join-Path $scriptDir '.codex-plugin\plugin.json')
-$detectedRepoRoot = Split-Path -Parent $scriptDir
-$hasRepoPluginMarker = Test-Path -LiteralPath (Join-Path $detectedRepoRoot '.codex-plugin\plugin.json')
-if (-not $RepoRoot) {
-    if ($hasPluginMarker) {
-        $pluginSource = $scriptDir
-    } elseif ($hasRepoPluginMarker) {
-        $pluginSource = $detectedRepoRoot
-    } else {
-        $RepoRoot = $detectedRepoRoot
-        $pluginSource = Join-Path $RepoRoot ('plugins\' + $pluginName)
-    }
+if ($PSVersionTable.PSVersion.Major -lt 7) { throw 'PowerShell 7 or newer is required. Run this installer with pwsh.' }
+$marketplaceName = 'zdh-gears'
+$marketplaceSource = 'https://github.com/zdhconsulting/zdh-gears.git'
+$pluginId = 'codex-gears@zdh-gears'
+function Invoke-CodexJson {
+    param([Parameter(Mandatory)][string[]] $Arguments)
+    $output = & $CodexCommand @Arguments 2>&1
+    if ($LASTEXITCODE -ne 0) { throw "Codex command failed ($LASTEXITCODE): codex $($Arguments -join ' ')`n$($output -join "`n")" }
+    try { return (($output -join "`n") | ConvertFrom-Json) }
+    catch { throw "Codex command returned invalid JSON: codex $($Arguments -join ' ')" }
+}
+$pluginResult = Invoke-CodexJson @('plugin', 'list', '--json')
+$conflicts = @($pluginResult.installed | Where-Object {
+    $installedId = if ($_.pluginId) { [string]$_.pluginId } else { [string]$_.name }
+    $installedId -eq 'codex-gears' -or ($installedId -like 'codex-gears@*' -and $installedId -ne $pluginId)
+})
+if ($conflicts.Count -gt 0) {
+    $identities = ($conflicts | ForEach-Object { if ($_.pluginId) { $_.pluginId } else { $_.name } }) -join ', '
+    throw "A conflicting codex-gears plugin identity is installed ($identities). Remove it explicitly before installing $pluginId."
+}
+$marketplaceResult = Invoke-CodexJson @('plugin', 'marketplace', 'list', '--json')
+$namedMarketplace = @($marketplaceResult.marketplaces | Where-Object { $_.name -eq $marketplaceName })
+if ($namedMarketplace.Count -gt 1) { throw "Multiple '$marketplaceName' marketplaces are configured. Resolve the duplicate entries before installing." }
+if ($namedMarketplace.Count -eq 1) {
+    $configured = $namedMarketplace[0].marketplaceSource
+    if ($configured.sourceType -ne 'git' -or $configured.source -ne $marketplaceSource) { throw "Marketplace '$marketplaceName' is configured from a different source. Expected $marketplaceSource; refusing to overwrite it." }
+    if ($Update) { Invoke-CodexJson @('plugin', 'marketplace', 'upgrade', $marketplaceName, '--json') | Out-Null }
 } else {
-    $pluginSource = Join-Path $RepoRoot ('plugins\' + $pluginName)
+    Invoke-CodexJson @('plugin', 'marketplace', 'add', $marketplaceSource, '--json') | Out-Null
 }
-
-$userPluginPath = Join-Path $UserPluginRoot $pluginName
-$manifestPath = Join-Path $pluginSource '.codex-plugin\plugin.json'
-$marketplacePath = Join-Path $PersonalMarketplaceRoot 'marketplace.json'
-$cacheRoot = Join-Path $CodexHome ("plugins\cache\$marketplaceName\$pluginName")
-$configPath = Join-Path $CodexHome 'config.toml'
-
-if (-not (Test-Path -LiteralPath $pluginSource)) {
-    throw "Plugin source missing: $pluginSource"
-}
-if (-not (Test-Path -LiteralPath $manifestPath)) {
-    throw "Plugin manifest missing: $manifestPath"
-}
-
-$pluginJson = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
-$version = [string]$pluginJson.version
-$cachePath = Join-Path $cacheRoot $version
-
-function Copy-PluginSource {
-    param([string] $Source, [string] $Destination)
-
-    $resolvedSource = [IO.Path]::GetFullPath($Source).TrimEnd('\\')
-    $resolvedDestination = [IO.Path]::GetFullPath($Destination).TrimEnd('\\')
-    if ($resolvedSource -eq $resolvedDestination) {
-        throw "Refusing to replace the plugin source in place. Run this installer from the repository checkout."
-    }
-
-    if (Test-Path -LiteralPath $Destination) {
-        Remove-Item -LiteralPath $Destination -Recurse -Force
-    }
-
-    New-Item -ItemType Directory -Force -Path $Destination | Out-Null
-    Get-ChildItem -LiteralPath $Source -Force |
-        Where-Object { $_.Name -notin @('.git', '.agents') } |
-        ForEach-Object {
-            Copy-Item -LiteralPath $_.FullName -Destination $Destination -Recurse -Force
-        }
-}
-
-function Set-PluginEnabled {
-    param([string] $Path)
-
-    New-Item -ItemType Directory -Force -Path (Split-Path -Parent $Path) | Out-Null
-
-    if (Test-Path -LiteralPath $Path) {
-        $text = Get-Content -LiteralPath $Path -Raw
-    } else {
-        $text = ''
-    }
-
-    $pluginBlockHeader = '[plugins."codex-gears@personal"]'
-    $pluginPattern = '(?ms)^\[plugins\."codex-gears@personal"\]\r?\n.*?(?=^\[|\z)'
-    $replacement = "$pluginBlockHeader`r`nenabled = true`r`n"
-
-    if ($text -match $pluginPattern) {
-        $text = [regex]::Replace($text, $pluginPattern, $replacement, 1)
-    } else {
-        if ($text.Trim().Length -gt 0) {
-            $text = $text.TrimEnd() + "`r`n`r`n"
-        }
-        $text += $replacement
-    }
-
-    Set-Content -LiteralPath $Path -Value ($text.TrimEnd() + "`r`n") -Encoding UTF8
-}
-
-function Set-PersonalMarketplace {
-    param([string] $Path)
-
-    New-Item -ItemType Directory -Force -Path (Split-Path -Parent $Path) | Out-Null
-
-    if (Test-Path -LiteralPath $Path) {
-        $marketplace = Get-Content -LiteralPath $Path -Raw | ConvertFrom-Json
-    } else {
-        $marketplace = [pscustomobject]@{
-            name = $marketplaceName
-            interface = [pscustomobject]@{ displayName = 'Personal' }
-            plugins = @()
-        }
-    }
-
-    if (-not $marketplace.name) {
-        $marketplace | Add-Member -NotePropertyName name -NotePropertyValue $marketplaceName
-    }
-    if (-not $marketplace.interface) {
-        $marketplace | Add-Member -NotePropertyName interface -NotePropertyValue ([pscustomobject]@{ displayName = 'Personal' })
-    }
-    if ($null -eq $marketplace.plugins) {
-        $marketplace | Add-Member -NotePropertyName plugins -NotePropertyValue @()
-    }
-
-    $entry = [pscustomobject]@{
-        name = $pluginName
-        source = [pscustomobject]@{
-            source = 'local'
-            path = './plugins/' + $pluginName
-        }
-        policy = [pscustomobject]@{
-            installation = 'AVAILABLE'
-            authentication = 'ON_INSTALL'
-        }
-        category = 'Productivity'
-        version = $version
-    }
-
-    $plugins = @($marketplace.plugins | Where-Object { $_.name -ne $pluginName })
-    $plugins += $entry
-    $marketplace.plugins = $plugins
-
-    $json = $marketplace | ConvertTo-Json -Depth 12
-    Set-Content -LiteralPath $Path -Value ($json.TrimEnd() + "`r`n") -Encoding UTF8
-}
-
-Copy-PluginSource -Source $pluginSource -Destination $userPluginPath
-Copy-PluginSource -Source $pluginSource -Destination $cachePath
-Set-PersonalMarketplace -Path $marketplacePath
-Set-PluginEnabled -Path $configPath
-
-Write-Host "Installed ZDH Gears plugin source: $userPluginPath"
-Write-Host "Installed ZDH Gears plugin cache: $cachePath"
-Write-Host "Updated marketplace: $marketplacePath"
-Write-Host "Updated plugin status in: $configPath"
-Write-Host 'Restart Codex Desktop or open a fresh session to load plugin changes.'
+Invoke-CodexJson @('plugin', 'add', $pluginId, '--json') | Out-Null
+Write-Host "Installed $pluginId through the native Codex plugin manager."
+if ($Update) { Write-Host "Refreshed marketplace $marketplaceName before installation." }
+Write-Host 'Start a fresh Codex task to load the plugin.'

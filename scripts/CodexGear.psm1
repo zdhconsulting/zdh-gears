@@ -43,7 +43,7 @@ function Get-CodexGearMatrix {
             Effort = "ultra"
             ServiceTier = "standard"
             Command = "exec"
-            Purpose = "Architecture, auth, security, billing, database, permissions, production-risk, or ambiguous complex failures on Astra high."
+            Purpose = "Architecture, auth, security, billing, database, permissions, production-risk, or ambiguous complex failures on Astra with ultra reasoning."
         }
         review = [pscustomobject]@{
             Profile = "review"
@@ -56,9 +56,12 @@ function Get-CodexGearMatrix {
         }
     }
     foreach ($alias in @(
-        @{ Name = 'boost'; Target = 'max'; Purpose = 'Boost mode: Astra with ultra reasoning.' },
-        @{ Name = 'saver'; Target = 'fast'; Model = 'gpt-5.3-codex-spark'; Purpose = 'Save Tokens mode: Spark with low reasoning and fast service for bounded work.' },
-        @{ Name = 'save-tokens'; Target = 'fast'; Model = 'gpt-5.3-codex-spark'; Purpose = 'Alias for Save Tokens mode.' }
+        @{ Name = 'boost'; Target = 'max'; ServiceTier = 'fast'; Purpose = 'Boost Mode: Astra with ultra reasoning and fast service.' },
+        @{ Name = 'saver'; Target = 'fast'; Model = 'gpt-5.3-codex-spark'; ServiceTier = 'standard'; Purpose = 'Save Tokens Mode: Spark with low reasoning for mechanical work.' },
+        @{ Name = 'save-tokens'; Target = 'fast'; Model = 'gpt-5.3-codex-spark'; ServiceTier = 'standard'; Purpose = 'Alias for the mechanical Save Tokens profile.' },
+        @{ Name = 'saver-compact'; Target = 'balanced'; Model = 'gpt-5.6-luna'; Purpose = 'Save Tokens Mode: Luna with low reasoning for recognized bounded implementation.' },
+        @{ Name = 'saver-work'; Target = 'balanced'; Model = 'gpt-5.6-sol'; Purpose = 'Save Tokens Mode: Sol with low reasoning for explicitly bounded debugging.' },
+        @{ Name = 'saver-risk'; Target = 'deep'; Purpose = 'Save Tokens Mode: Astra with high reasoning for sensitive, broad or intrinsically difficult work.' }
     )) {
         $target = $matrix[$alias.Target]
         $matrix[$alias.Name] = [pscustomobject]@{
@@ -66,7 +69,7 @@ function Get-CodexGearMatrix {
             Gear = $target.Gear
             Model = if ($alias.Model) { $alias.Model } else { $target.Model }
             Effort = $target.Effort
-            ServiceTier = $target.ServiceTier
+            ServiceTier = if ($alias.ServiceTier) { $alias.ServiceTier } else { $target.ServiceTier }
             Command = $target.Command
             Purpose = $alias.Purpose
         }
@@ -390,21 +393,37 @@ function Get-CodexGear {
     return $matrix[$Profile]
 }
 
-function Select-CodexGear {
+function Resolve-CodexGearInput {
+    param(
+        [Parameter(Mandatory = $true)][string] $Text,
+        [ValidateSet('auto', 'boost', 'save-tokens')][string] $Mode
+    )
+    $taskText = $Text.Trim()
+    # Only a leading imperative mode directive is a request. Describing or
+    # negating a mode elsewhere in the task must not activate it.
+    $directive = [regex]::Match($taskText, '(?is)^(?:(?:enable|use|turn\s+on)\s+)?(?<mode>auto\s+selection(?:\s+mode)?|boost\s+mode|save(?:-|\s+)tokens\s+mode)(?:\s*:\s*|\s*[.!]?\s*$)')
+    $resolvedMode = if ($Mode) { $Mode } else { 'auto' }
+    if ($directive.Success) {
+        if (-not $Mode) {
+            $resolvedMode = switch -Regex ($directive.Groups['mode'].Value) {
+                '^boost' { 'boost'; break }
+                '^save' { 'save-tokens'; break }
+                default { 'auto' }
+            }
+        }
+        $taskText = $taskText.Substring($directive.Length)
+    }
+    [pscustomobject]@{ Mode = $resolvedMode; Text = $taskText }
+}
+
+function Select-CodexTaskProfile {
     param(
         [Parameter(Mandatory = $true)]
-        [string] $Text
+        [AllowEmptyString()][string] $Text
     )
 
     $normalized = ($Text -replace '\s+', ' ').Trim().ToLowerInvariant()
-    # Boost is an explicit request for the deepest configuration. Saver remains
-    # subordinate to task complexity and risk; it only changes a low-scope route.
-    if ($normalized -match '\bboost mode\b') { return 'boost' }
-    $saveTokensMode = $normalized -match '\bsave[- ]tokens mode\b'
-    $lowProfile = if ($saveTokensMode) { 'saver' } else { 'fast' }
-    if ($saveTokensMode) {
-        $normalized = ($normalized -replace '\bsave[- ]tokens mode\b[: ,.-]*', '').Trim()
-    }
+    $lowProfile = 'fast'
     $explicitReview =
         $normalized -match "\b(code|pr|pull request|diff|commit)\s+review\b" -or
         $normalized -match "\breview\s+(the\s+|this\s+)?(code|pr|pull request|diff|commit|changes)\b"
@@ -413,7 +432,7 @@ function Select-CodexGear {
     # review intent, cosmetic wording, and requests to be quick or use low gear.
     if ($normalized -match '\b(delete|deleting|deletion|purge|wipe|truncate|drop|destroy|erase)\b' -or
         $normalized -match '\b(remove|removing)\b.*\b(records?|data|tables?|accounts?|backups?|directories|files?)\b' -or
-        $normalized -match '\b(distributed consensus|consensus algorithm|raft|paxos|byzantine|race condition|threading|data loss|production[- ]risk)\b') {
+        $normalized -match '\b(distributed consensus|consensus algorithm|raft|paxos|byzantine|race condition|deadlock|threading|data loss|production[- ]risk)\b') {
         return 'max'
     }
 
@@ -475,11 +494,45 @@ function Select-CodexGear {
     $simpleRead = $normalized -match '^(?:please )?(?:show me|list|check whether|does)\b.*\b(?:files?|folders?|labels?|links?|status|exist)\b[?.]?$' -or
         $normalized -match '^(?:please )?(?:show |check |get )?(?:the )?(?:git |build |task )?status[?.]?$'
     if ($simpleRead -and -not $substantiveWork -and -not $additionalWork -and $maxHits -eq 0) { return $lowProfile }
-    if ($saveTokensMode -and $score -eq 0 -and $maxHits -eq 0 -and -not $substantiveWork) { return 'saver' }
     # Unknown and underspecified requests retain Astra instead of silently
     # downgrading to the low-scope model.
     if ($score -le 3) { return "balanced" }
     return "deep"
+}
+
+function Select-CodexGear {
+    param(
+        [Parameter(Mandatory = $true)][string] $Text,
+        [ValidateSet('auto', 'boost', 'save-tokens')][string] $Mode
+    )
+    $inputRequest = if ($Mode) { Resolve-CodexGearInput -Text $Text -Mode $Mode } else { Resolve-CodexGearInput -Text $Text }
+    if ($inputRequest.Mode -eq 'boost') { return 'boost' }
+    $profile = Select-CodexTaskProfile -Text $inputRequest.Text
+    if ($inputRequest.Mode -ne 'save-tokens') { return $profile }
+
+    $normalized = ($inputRequest.Text -replace '\s+', ' ').Trim().ToLowerInvariant()
+    if (-not $normalized) { return 'saver' }
+    if ($profile -eq 'max') { return 'saver-risk' }
+    if ($profile -eq 'review') { return 'review' }
+
+    # Scope and risk outrank a cheap-model request. A bounded phrase embedded in
+    # broader work cannot downshift that whole request to Luna or Sol.
+    $broadWork = $normalized -match '\b(production|prod|deploy(?:ment)?|migrat(?:e|ion)|multi[- ]file|codebase|repository[- ]wide|across|entire|all|every|system[- ]wide|multiple|several|full|whole|rebuild|rewrite|redesign|overhaul|from scratch)\b' -or
+        $normalized -match '\b(build|create|implement) (?:(?:an?|the) )?(?:application|app|platform|system)\b'
+    $compoundWork = $normalized -match '\b(and|then|also|plus)\b|[,;&]|[.!?]\s+\S'
+    if ($broadWork) { return 'saver-risk' }
+    if ($profile -eq 'fast' -and -not $compoundWork) { return 'saver' }
+    $boundedDebug = $normalized -match '^(?:please )?(?:debug|fix|investigate|resolve) (?:(?:one|a single|a specific|an isolated) (?:failing |broken )?(?:unit test|test|helper|component|function)|(?:a )?(?:bug|regression|failure) in (?:one|a single|a specific|an isolated) (?:unit test|test|helper|component|function))(?: in [\w./\\-]+)?[.!]?$'
+    if ($profile -eq 'deep') {
+        if ($boundedDebug -and -not $compoundWork) { return 'saver-work' }
+        return 'deep'
+    }
+    $boundedImplementation = $normalized -match '^(?:please )?(?:add|build|create|implement|fix|style|update|change) (?:(?:the|a|an|one|single) )?(?:(?!(?:with|including|containing|that)\b)[\w-]+ ){0,3}(?:form|component|helper|page|button|label|heading|link|style|function|card)(?: (?:in|on|for|to) [\w./\\-]+)?[.!]?$'
+    if ($boundedImplementation -and -not $compoundWork) { return 'saver-compact' }
+    # Unknown requests retain Astra low. No availability-based retries or
+    # assumptions about remaining allowance are made by this deterministic rule.
+    if ($profile -eq 'fast') { return 'balanced' }
+    return $profile
 }
 
 function Select-AiWorkRoute {
@@ -1045,7 +1098,7 @@ function New-CodexConfigArgs {
     return $args
 }
 
-Export-ModuleMember -Function Get-CodexGearMatrix, Get-CodexGear, Select-CodexGear, Select-AiWorkRoute, Select-ChatGatewayRoute, Select-AiProviderRoute, ConvertTo-ChatGatewayTaskText, Get-ChatGatewayTaskKey, Test-ChatGatewayFreshnessSensitive, Get-ChatGatewayCacheEntry, Get-ChatGatewaySavingsEstimate, New-ChatGatewayHybridSplit, Get-CodexLatestTokenSnapshot, Get-CodexExecutable, New-CodexConfigArgs
+Export-ModuleMember -Function Resolve-CodexGearInput, Get-CodexGearMatrix, Get-CodexGear, Select-CodexGear, Select-AiWorkRoute, Select-ChatGatewayRoute, Select-AiProviderRoute, ConvertTo-ChatGatewayTaskText, Get-ChatGatewayTaskKey, Test-ChatGatewayFreshnessSensitive, Get-ChatGatewayCacheEntry, Get-ChatGatewaySavingsEstimate, New-ChatGatewayHybridSplit, Get-CodexLatestTokenSnapshot, Get-CodexExecutable, New-CodexConfigArgs
 
 
 

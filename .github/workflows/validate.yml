@@ -1,11 +1,15 @@
 name: validate
 on: [push, pull_request]
+permissions:
+  contents: read
 jobs:
   package:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - run: pwsh -NoProfile -File tests/routing-smoke.ps1
-      - run: pwsh -NoProfile -File scripts/zdh-gears-doctor.ps1 -Json
-      - run: pwsh -NoProfile -Command '$m=Get-Content .codex-plugin/plugin.json|ConvertFrom-Json; $v=(Get-Content .agents/plugins/marketplace.json|ConvertFrom-Json).plugins[0].version; if($m.version -ne $v){throw "version mismatch"}; if(!(Test-Path assets/zdh-gears-icon.svg)){throw "icon missing"}'
-
+      - name: Routing, launcher, receipt, package and installer tests
+        shell: pwsh
+        run: ./tests/run-tests.ps1

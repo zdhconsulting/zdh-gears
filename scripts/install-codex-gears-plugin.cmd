@@ -1,2 +1,2 @@
 @echo off
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0install-codex-gears-plugin.ps1" %*
+pwsh -NoProfile -File "%~dp0install-codex-gears-plugin.ps1" %*

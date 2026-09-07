@@ -1,7 +1,7 @@
 {
   "name": "codex-gears",
-  "version": "1.5.2",
-  "description": "Automatic task sizing for Codex: use a lighter GPT-5.6 profile for simple work and deeper Astra reasoning when the job needs it.",
+  "version": "1.5.3",
+  "description": "Match Codex settings to the task with Auto Selection, Boost Mode, and Save Tokens Mode using Spark, GPT-5.6, and Astra.",
   "author": {
     "name": "ZDH Consulting",
     "email": "zev@zdhconsulting.com",
@@ -18,19 +18,20 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "ZDH Gears",
-    "shortDescription": "Automatically match Codex speed, model, and reasoning depth to the task.",
-    "longDescription": "ZDH Gears reads the task itself, selects GPT-5.6 low for simple work or Astra reasoning for deeper work, then can launch Codex with the selected model and reasoning settings and record a verifiable execution receipt.",
+    "shortDescription": "Auto Selection, Boost or Save Tokens: choose Codex settings to fit the task.",
+    "longDescription": "Use Auto Selection to fit the task, Boost Mode to request Astra ultra with fast service, or Save Tokens Mode to choose Spark, Luna, or Sol for bounded work and Astra when needed. The bundled launcher requests model, reasoning and service settings. Receipts separate selection and process outcome from unverified backend configuration.",
     "developerName": "ZDH Consulting",
     "category": "Productivity",
     "capabilities": [
       "Automatic task sizing",
       "Speed and reasoning control",
-      "Token-aware routing"
+      "Task-aware routing"
     ],
     "defaultPrompt": [
       "Use ZDH Gears to choose the right speed and reasoning depth for this task."
     ],
-    "brandColor": "#2563EB"
-  },
-  "icon": "./assets/zdh-gears-icon.svg"
+    "brandColor": "#2563EB",
+    "composerIcon": "./assets/zdh-gears-icon.svg",
+    "logo": "./assets/codex-gears-logo.svg"
+  }
 }
