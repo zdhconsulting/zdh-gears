@@ -1,0 +1,35 @@
+{
+  "name": "codex-gears",
+  "version": "1.0.0",
+  "description": "High-class ZDH gear routing pack for shareable local-first policy and route selection.",
+  "author": {
+    "name": "ZDH Consulting",
+    "email": "zev@zdhconsulting.com",
+    "url": "https://github.com/zdhconsulting"
+  },
+  "repository": "https://github.com/zdhconsulting/codex-ai-systems",
+  "license": "UNLICENSED",
+  "keywords": [
+    "codex",
+    "gears",
+    "routing",
+    "workflow"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "ZDH Gears",
+    "shortDescription": "Portable routing policy package for local-first Codex gear selection and local-only execution discipline.",
+    "longDescription": "This plugin adds a compact but complete routing policy package: conflict-aware gear selection, local-only execution safeguards, and deterministic provider override behavior. It is intended to be copyable and installable in other workspaces or teams with no local policy drift.",
+    "developerName": "ZDH Consulting",
+    "category": "Productivity",
+    "capabilities": [
+      "Routing",
+      "Policy",
+      "Automation"
+    ],
+    "defaultPrompt": [
+      "Apply ZDH Gears for consistent local/remote routing decisions and local-only handling."
+    ],
+    "brandColor": "#2563EB"
+  }
+}

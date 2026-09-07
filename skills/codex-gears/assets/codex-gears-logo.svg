@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 160" role="img" aria-labelledby="title desc">
+  <title>ZDH Gears</title>
+  <desc>Brand mark for ZDH Gears routing policy pack</desc>
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1E3A8A"/>
+      <stop offset="100%" stop-color="#2563EB"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="520" height="160" rx="22" fill="#F8FAFC"/>
+  <g fill="none" stroke="url(#g)" stroke-linejoin="round" stroke-width="10" transform="translate(35 28)">
+    <circle cx="52" cy="52" r="36" fill="#EEF2FF"/>
+    <circle cx="52" cy="52" r="16" fill="url(#g)"/>
+    <path d="M52 2 v12 M52 90 v12 M2 52 h12 M90 52 h12 M18 18 l8 8 M86 86 l-8-8 M86 18 l-8 8 M18 86 l8-8"/>
+    <circle cx="52" cy="52" r="48"/>
+  </g>
+
+  <g fill="none" stroke="url(#g)" stroke-linejoin="round" stroke-width="10" transform="translate(146 28)">
+    <circle cx="44" cy="52" r="28" fill="#EEF2FF"/>
+    <circle cx="44" cy="52" r="12" fill="url(#g)"/>
+    <path d="M44 16 v8 M44 80 v8 M16 52 h8 M64 52 h8 M25 25 l6 6 M67 79 l-6-6 M67 25 l-6 6 M25 79 l6-6"/>
+    <circle cx="44" cy="52" r="38"/>
+  </g>
+
+  <text x="246" y="85" font-family="Segoe UI, -apple-system, Arial, sans-serif" font-size="40" font-weight="700" fill="#0F172A">ZDH</text>
+  <text x="246" y="120" font-family="Segoe UI, -apple-system, Arial, sans-serif" font-size="34" font-weight="700" fill="#2563EB">Gears</text>
+</svg>
