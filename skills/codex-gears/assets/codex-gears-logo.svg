@@ -1,27 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 160" role="img" aria-labelledby="title desc">
-  <title>ZDH Gears</title>
-  <desc>Brand mark for ZDH Gears routing policy pack</desc>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 220" role="img" aria-labelledby="title desc">
+  <title id="title">ZDH Gears</title>
+  <desc id="desc">A precise interlocking gear mark beside the ZDH Gears wordmark</desc>
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#1E3A8A"/>
-      <stop offset="100%" stop-color="#2563EB"/>
-    </linearGradient>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#07152F"/><stop offset="1" stop-color="#102E5E"/></linearGradient>
+    <linearGradient id="cyan" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#67E8F9"/><stop offset="1" stop-color="#22D3EE"/></linearGradient>
+    <linearGradient id="violet" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#A78BFA"/><stop offset="1" stop-color="#6366F1"/></linearGradient>
   </defs>
-  <rect x="0" y="0" width="520" height="160" rx="22" fill="#F8FAFC"/>
-  <g fill="none" stroke="url(#g)" stroke-linejoin="round" stroke-width="10" transform="translate(35 28)">
-    <circle cx="52" cy="52" r="36" fill="#EEF2FF"/>
-    <circle cx="52" cy="52" r="16" fill="url(#g)"/>
-    <path d="M52 2 v12 M52 90 v12 M2 52 h12 M90 52 h12 M18 18 l8 8 M86 86 l-8-8 M86 18 l-8 8 M18 86 l8-8"/>
-    <circle cx="52" cy="52" r="48"/>
+  <rect width="720" height="220" rx="32" fill="url(#bg)"/>
+  <g transform="translate(34 30)" fill="none" stroke-linejoin="round">
+    <path d="M76 8v18M76 134v18M8 76h18M134 76h18M28 28l13 13M124 124l-13-13M124 28l-13 13M28 124l13-13" stroke="url(#cyan)" stroke-width="14" stroke-linecap="round"/>
+    <circle cx="76" cy="76" r="54" fill="#0B2146" stroke="url(#cyan)" stroke-width="12"/><circle cx="76" cy="76" r="20" fill="url(#cyan)"/>
+    <path d="M142 42v14M142 118v14M104 80h14M170 80h14M116 54l10 10M168 120l-10-10M168 54l-10 10M116 120l10-10" stroke="url(#violet)" stroke-width="11" stroke-linecap="round"/>
+    <circle cx="142" cy="80" r="32" fill="#111C49" stroke="url(#violet)" stroke-width="10"/><circle cx="142" cy="80" r="11" fill="url(#violet)"/>
   </g>
-
-  <g fill="none" stroke="url(#g)" stroke-linejoin="round" stroke-width="10" transform="translate(146 28)">
-    <circle cx="44" cy="52" r="28" fill="#EEF2FF"/>
-    <circle cx="44" cy="52" r="12" fill="url(#g)"/>
-    <path d="M44 16 v8 M44 80 v8 M16 52 h8 M64 52 h8 M25 25 l6 6 M67 79 l-6-6 M67 25 l-6 6 M25 79 l6-6"/>
-    <circle cx="44" cy="52" r="38"/>
-  </g>
-
-  <text x="246" y="85" font-family="Segoe UI, -apple-system, Arial, sans-serif" font-size="40" font-weight="700" fill="#0F172A">ZDH</text>
-  <text x="246" y="120" font-family="Segoe UI, -apple-system, Arial, sans-serif" font-size="34" font-weight="700" fill="#2563EB">Gears</text>
+  <text x="278" y="106" font-family="Segoe UI, Arial, sans-serif" font-size="66" font-weight="800" letter-spacing="8" fill="#F8FAFC">ZDH</text>
+  <text x="282" y="157" font-family="Segoe UI, Arial, sans-serif" font-size="38" font-weight="600" letter-spacing="10" fill="#67E8F9">GEARS</text>
+  <text x="284" y="187" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="600" letter-spacing="3" fill="#A5B4FC">ROUTE WITH INTENT</text>
 </svg>
