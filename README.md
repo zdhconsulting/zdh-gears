@@ -18,6 +18,18 @@ The package is local-first: it does not upload project files or secrets by itsel
 - Deterministic provider override precedence
 - Versioned share manifest support (`codex-gears.share.json`)
 
+## Customer install (recommended)
+
+For a customer workspace, the normal handoff is an administrator import followed by one install click:
+
+1. Open **Workspace settings → Plugins → Add → Import marketplace**.
+2. Enter `https://github.com/zdhconsulting/zdh-gears` as the GitHub repository URL. Leave Path empty.
+3. Import the marketplace, open **ZDH Gears**, and select **Install**.
+
+After that, the customer selects ZDH Gears from Codex's plugin/source controls. GitHub is the source of updates; the workspace controls who can install and use it.
+
+If the customer does not have marketplace administration available, use the local clone installer below.
+
 ## Install from a clone
 
 From a machine with this repository:
