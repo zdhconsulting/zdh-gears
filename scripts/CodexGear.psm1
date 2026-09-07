@@ -50,7 +50,7 @@ function Get-CodexGearMatrix {
             Gear = "review"
             Model = "gpt-6-astra"
             Effort = "high"
-            ServiceTier = "fast"
+            ServiceTier = "standard"
             Command = "exec"
             Purpose = "High gear on Astra with high reasoning for explicit code review, PR review, diff review, or commit review."
         }
