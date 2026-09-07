@@ -97,3 +97,19 @@ pwsh -NoProfile -File .\scripts\zdh-gears-route.ps1 "Design authentication and b
 The receipt records the selected profile and requested configuration. It intentionally remains `Applied = false` until a host launcher applies and observes the configuration.
 
 Keep `plugin.json`, the SKILL instructions, and the contract reference in sync when behavior changes.
+
+## Direct execution and diagnostics
+
+To run a task through the selected gear and record whether Codex completed with that configuration:
+
+```powershell
+pwsh -NoProfile -File .\scripts\zdh-gears-exec.ps1 "Fix the failing test" -PassThru
+```
+
+The launcher passes the selected model, reasoning effort, and service tier directly to `codex exec`. The receipt uses `verified`, `mismatch`, or `unverified` so a selection is never presented as proof of execution. For a preflight check:
+
+```powershell
+pwsh -NoProfile -File .\scripts\zdh-gears-doctor.ps1
+```
+
+The launcher is the enforcement path. The installed skill remains the conversational guidance path; it cannot intercept every unrelated Codex task by itself.

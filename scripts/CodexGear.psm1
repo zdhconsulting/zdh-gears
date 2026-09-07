@@ -11,7 +11,7 @@ function Get-CodexGearMatrix {
         }
         balanced = [pscustomobject]@{
             Profile = "balanced"
-            Gear = "high"
+            Gear = "medium"
             Model = "gpt-6-astra"
             Effort = "low"
             ServiceTier = "standard"
@@ -1007,3 +1007,5 @@ function New-CodexConfigArgs {
 }
 
 Export-ModuleMember -Function Get-CodexGearMatrix, Get-CodexGear, Select-CodexGear, Select-AiWorkRoute, Select-ChatGatewayRoute, Select-AiProviderRoute, ConvertTo-ChatGatewayTaskText, Get-ChatGatewayTaskKey, Test-ChatGatewayFreshnessSensitive, Get-ChatGatewayCacheEntry, Get-ChatGatewaySavingsEstimate, New-ChatGatewayHybridSplit, Get-CodexLatestTokenSnapshot, Get-CodexExecutable, New-CodexConfigArgs
+
+
