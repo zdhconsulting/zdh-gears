@@ -6,6 +6,8 @@ The plugin exposes the **ZDH Gears** skill pack as a portable package.
 
 ZDH Gears is a routing aid. It does not guarantee correctness, security, legal compliance, cost savings, or a particular model or response time. Review generated changes and keep normal project, account, and production approvals in place.
 
+The model policy is intentional: fast work uses GPT-5.6 Luna, standard/deep/review work uses GPT-5.6 Sol, and architecture or production-risk work uses Astra with high reasoning. GPT-5.5 is not part of this package.
+
 The package is local-first: it does not upload project files or secrets by itself. Its optional telemetry helper reads local Codex session metadata to estimate token usage; it does not send that data anywhere.
 
 ## What it ships

@@ -3,25 +3,25 @@ function Get-CodexGearMatrix {
         fast = [pscustomobject]@{
             Profile = "fast"
             Gear = "low"
-            Model = "gpt-5.5"
+            Model = "gpt-5.6-luna"
             Effort = "high"
             ServiceTier = "fast"
             Command = "exec"
-            Purpose = "Low-scope work label only: simple coding, status checks, typos, copy, links, and obvious one-file fixes still run on gpt-5.5 with high reasoning."
+            Purpose = "Low-scope work label only: simple coding, status checks, typos, copy, links, and obvious one-file fixes still run on gpt-5.6-sol with high reasoning."
         }
         balanced = [pscustomobject]@{
             Profile = "balanced"
             Gear = "high"
-            Model = "gpt-5.5"
+            Model = "gpt-5.6-sol"
             Effort = "high"
             ServiceTier = "fast"
             Command = "exec"
-            Purpose = "Compatibility alias for high gear. Normal implementation work now runs on gpt-5.5 with high reasoning."
+            Purpose = "Compatibility alias for high gear. Normal implementation work now runs on gpt-5.6-sol with high reasoning."
         }
         standard = [pscustomobject]@{
             Profile = "standard"
             Gear = "high"
-            Model = "gpt-5.5"
+            Model = "gpt-5.6-sol"
             Effort = "high"
             ServiceTier = "standard"
             Command = "exec"
@@ -30,7 +30,7 @@ function Get-CodexGearMatrix {
         deep = [pscustomobject]@{
             Profile = "deep"
             Gear = "high"
-            Model = "gpt-5.5"
+            Model = "gpt-5.6-sol"
             Effort = "high"
             ServiceTier = "fast"
             Command = "exec"
@@ -39,20 +39,20 @@ function Get-CodexGearMatrix {
         max = [pscustomobject]@{
             Profile = "max"
             Gear = "xhigh"
-            Model = "gpt-5.5"
-            Effort = "xhigh"
+            Model = "gpt-6-astra"
+            Effort = "high"
             ServiceTier = "fast"
             Command = "exec"
-            Purpose = "Architecture, auth, security, billing, database, permissions, production-risk, or ambiguous complex failures."
+            Purpose = "Architecture, auth, security, billing, database, permissions, production-risk, or ambiguous complex failures on Astra high."
         }
         review = [pscustomobject]@{
             Profile = "review"
             Gear = "review"
-            Model = "gpt-5.5"
+            Model = "gpt-5.6-sol"
             Effort = "high"
             ServiceTier = "fast"
             Command = "exec"
-            Purpose = "Explicit code review, PR review, diff review, or commit review on gpt-5.5 with high reasoning."
+            Purpose = "Explicit code review, PR review, diff review, or commit review on gpt-5.6-sol with high reasoning."
         }
     }
     return $matrix
