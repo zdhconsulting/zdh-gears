@@ -381,45 +381,6 @@ function Select-CodexGear {
     )
 
     $normalized = $Text.ToLowerInvariant()
-    $gearTagMatches = [regex]::Matches($normalized, "\[(low|fast|medium|balanced|standard|high|deep|xhigh|max|review)\]|(?:^|\s)--(low|fast|medium|balanced|standard|high|deep|xhigh|max|review)\b")
-    if ($gearTagMatches.Count -gt 0) {
-        $tagToProfile = @{
-            low = "fast"; fast = "fast";
-            medium = "deep"; balanced = "deep"; standard = "standard";
-            high = "deep"; deep = "deep";
-            xhigh = "max"; max = "max";
-            review = "review"
-        }
-        $resolvedProfiles = New-Object System.Collections.Generic.HashSet[string]
-        foreach ($match in @($gearTagMatches)) {
-            $tag = if ($match.Groups[1].Success) { $match.Groups[1].Value } else { $match.Groups[2].Value }
-            if ($tagToProfile.ContainsKey($tag)) {
-                [void]$resolvedProfiles.Add($tagToProfile[$tag])
-            }
-        }
-        if ($resolvedProfiles.Count -gt 0) {
-            if ($resolvedProfiles.Contains("review")) { return "review" }
-            if ($resolvedProfiles.Count -gt 1) { return "max" }
-            foreach ($profile in $resolvedProfiles) { return $profile }
-        }
-    }
-
-    if ($normalized -match "\[(low|fast)\]" -or $normalized -match "(?:^|\s)--(low|fast)\b") {
-        return "fast"
-    }
-    if ($normalized -match "\[(medium|balanced|standard)\]" -or $normalized -match "(?:^|\s)--(medium|balanced|standard)\b") {
-        return "balanced"
-    }
-    if ($normalized -match "\[(high|deep)\]" -or $normalized -match "\b--(high|deep)\b") {
-        return "deep"
-    }
-    if ($normalized -match "\[(xhigh|max)\]" -or $normalized -match "\b--(xhigh|max)\b") {
-        return "max"
-    }
-    if ($normalized -match "\[(review)\]" -or $normalized -match "\b--review\b") {
-        return "review"
-    }
-
     $explicitReview =
         $normalized -match "\b(code|pr|pull request|diff|commit)\s+review\b" -or
         $normalized -match "\breview\s+(the\s+|this\s+)?(code|pr|pull request|diff|commit|changes)\b"

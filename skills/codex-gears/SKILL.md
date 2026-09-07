@@ -13,6 +13,8 @@ This skill provides routing guidance only. It is not a security, legal, financia
 
 When the user asks whether routing is active, report the selected gear, model, reasoning level, service tier, and the task signals that led to the choice before beginning work.
 
+Choose the gear from the full task text. A user's opening request for “low,” “high,” or another gear is context only and must not override the complexity, risk, files, tools, or verification required by the actual task.
+
 The pack contains a portable install script and reference docs for:
 
 - `Select-CodexGear` profile selection

@@ -9,10 +9,7 @@ This reference describes the portable behaviors this skill must preserve.
   - `Select-ChatGatewayRoute` returns `Route = codex`, `Dispatch = codex-auto`
   - `Select-AiProviderRoute` returns `Route = codex`, `Provider = codex`
 
-- Explicit tags must retain precedence:
-  - `[codex]`, `[chatgpt]`, `[deepseek]` continue to override heuristic routing unless `-ForceCodex` already exists in the provider call path.
-  - Conflicting gear tags in prompt text (for example `[low] [xhigh]`) resolve to `max` (highest).
-  - `[review]` is authoritative if present.
+- Provider force tags (`[codex]`, `[chatgpt]`, `[deepseek]`) remain explicit provider instructions. Gear words such as `low`, `medium`, `high`, or `xhigh` are context only; task complexity and risk determine the selected gear.
 
 ## Distribution behavior
 
