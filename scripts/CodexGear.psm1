@@ -381,7 +381,7 @@ function Select-CodexGear {
     )
 
     $normalized = $Text.ToLowerInvariant()
-    $gearTagMatches = [regex]::Matches($normalized, "\[(low|fast|medium|balanced|standard|high|deep|xhigh|max|review)\]|\b--(low|fast|medium|balanced|standard|high|deep|xhigh|max|review)\b")
+    $gearTagMatches = [regex]::Matches($normalized, "\[(low|fast|medium|balanced|standard|high|deep|xhigh|max|review)\]|(?:^|\s)--(low|fast|medium|balanced|standard|high|deep|xhigh|max|review)\b")
     if ($gearTagMatches.Count -gt 0) {
         $tagToProfile = @{
             low = "fast"; fast = "fast";
@@ -404,10 +404,10 @@ function Select-CodexGear {
         }
     }
 
-    if ($normalized -match "\[(low|fast)\]" -or $normalized -match "\b--(low|fast)\b") {
+    if ($normalized -match "\[(low|fast)\]" -or $normalized -match "(?:^|\s)--(low|fast)\b") {
         return "fast"
     }
-    if ($normalized -match "\[(medium|balanced|standard)\]" -or $normalized -match "\b--(medium|balanced|standard)\b") {
+    if ($normalized -match "\[(medium|balanced|standard)\]" -or $normalized -match "(?:^|\s)--(medium|balanced|standard)\b") {
         return "balanced"
     }
     if ($normalized -match "\[(high|deep)\]" -or $normalized -match "\b--(high|deep)\b") {
@@ -493,8 +493,8 @@ function Select-AiWorkRoute {
     $normalized = $Text.ToLowerInvariant()
     $signals = New-Object System.Collections.Generic.List[string]
 
-    $forceCodexTag = $normalized -match "\[(codex|force-codex)\]" -or $normalized -match "\s--(codex|force-codex)\b"
-    $forceChatGptTag = $normalized -match "\[(chatgpt|gpt|force-chatgpt)\]" -or $normalized -match "\s--(chatgpt|gpt|force-chatgpt)\b"
+    $forceCodexTag = $normalized -match "\[(codex|force-codex)\]" -or $normalized -match "(?:^|\s)--(codex|force-codex)\b"
+    $forceChatGptTag = $normalized -match "\[(chatgpt|gpt|force-chatgpt)\]" -or $normalized -match "(?:^|\s)--(chatgpt|gpt|force-chatgpt)\b"
     $localOnlyDirective = $normalized -match "\b(local only|local-only|run locally|execute locally|keep this local|local-first|internal local context only|only local)\b"
 
     if ($localOnlyDirective) {
@@ -528,7 +528,7 @@ function Select-AiWorkRoute {
     }
 
     $gearOverride = $normalized -match "\[(low|fast|medium|balanced|high|deep|xhigh|max|review)\]" -or
-        $normalized -match "\s--(low|fast|medium|balanced|high|deep|xhigh|max|review)\b"
+        $normalized -match "(?:^|\s)--(low|fast|medium|balanced|standard|high|deep|xhigh|max|review)\b"
     if ($gearOverride) {
         $signals.Add("explicit Codex gear override")
         return [pscustomobject]@{
@@ -607,8 +607,8 @@ function Select-ChatGatewayRoute {
     $chatGptSignals = New-Object System.Collections.Generic.List[string]
     $localOnlyDirective = $normalized -match "\b(local only|local-only|run locally|execute locally|keep this local|local-first|internal local context only|only local)\b"
 
-    $forceCodexTag = $normalized -match "\[(codex|force-codex)\]" -or $normalized -match "\s--(codex|force-codex)\b"
-    $forceChatGptTag = $normalized -match "\[(chatgpt|gpt|force-chatgpt)\]" -or $normalized -match "\s--(chatgpt|gpt|force-chatgpt)\b"
+    $forceCodexTag = $normalized -match "\[(codex|force-codex)\]" -or $normalized -match "(?:^|\s)--(codex|force-codex)\b"
+    $forceChatGptTag = $normalized -match "\[(chatgpt|gpt|force-chatgpt)\]" -or $normalized -match "(?:^|\s)--(chatgpt|gpt|force-chatgpt)\b"
 
     if ($localOnlyDirective) {
         return [pscustomobject]@{
@@ -652,7 +652,7 @@ function Select-ChatGatewayRoute {
     }
 
     $gearOverride = $normalized -match "\[(low|fast|medium|balanced|high|deep|xhigh|max|review)\]" -or
-        $normalized -match "\s--(low|fast|medium|balanced|high|deep|xhigh|max|review)\b"
+        $normalized -match "(?:^|\s)--(low|fast|medium|balanced|standard|high|deep|xhigh|max|review)\b"
     if ($gearOverride) {
         $codexSignals.Add("explicit Codex gear override")
     }
@@ -775,7 +775,7 @@ function Select-AiProviderRoute {
 
     $forceCodexTag = $normalized -match "\[(codex|force-codex)\]" -or $normalized -match "\s--(codex|force-codex)\b"
     $forceChatGptTag = $normalized -match "\[(chatgpt|gpt|force-chatgpt)\]" -or $normalized -match "\s--(chatgpt|gpt|force-chatgpt)\b"
-    $forceDeepSeekTag = $normalized -match "\[(deepseek|force-deepseek)\]" -or $normalized -match "\s--(deepseek|force-deepseek)\b"
+    $forceDeepSeekTag = $normalized -match "\[(deepseek|force-deepseek)\]" -or $normalized -match "(?:^|\s)--(deepseek|force-deepseek)\b"
 
     if ($localOnlyDirective -and -not $ForceCodex) {
         $base = Select-ChatGatewayRoute -Text $Text -ForceCodex
