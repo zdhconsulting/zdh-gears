@@ -9,6 +9,8 @@ description: High-confidence, shareable routing profile pack for Codex gear sele
 
 Use this skill when a team or repo needs the same routing behavior as the canonical Codex gear system without re-implementing the logic manually.
 
+This skill provides routing guidance only. It is not a security, legal, financial, or production approval system, and it does not guarantee model behavior or outcomes.
+
 The pack contains a portable install script and reference docs for:
 
 - `Select-CodexGear` profile selection

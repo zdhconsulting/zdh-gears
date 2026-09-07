@@ -18,6 +18,15 @@ function Get-CodexGearMatrix {
             Command = "exec"
             Purpose = "Compatibility alias for high gear. Normal implementation work now runs on gpt-5.5 with high reasoning."
         }
+        standard = [pscustomobject]@{
+            Profile = "standard"
+            Gear = "high"
+            Model = "gpt-5.5"
+            Effort = "high"
+            ServiceTier = "standard"
+            Command = "exec"
+            Purpose = "Clear name for normal implementation work; equivalent to high gear with high reasoning."
+        }
         deep = [pscustomobject]@{
             Profile = "deep"
             Gear = "high"
@@ -372,11 +381,11 @@ function Select-CodexGear {
     )
 
     $normalized = $Text.ToLowerInvariant()
-    $gearTagMatches = [regex]::Matches($normalized, "\[(low|fast|medium|balanced|high|deep|xhigh|max|review)\]|\b--(low|fast|medium|balanced|high|deep|xhigh|max|review)\b")
+    $gearTagMatches = [regex]::Matches($normalized, "\[(low|fast|medium|balanced|standard|high|deep|xhigh|max|review)\]|\b--(low|fast|medium|balanced|standard|high|deep|xhigh|max|review)\b")
     if ($gearTagMatches.Count -gt 0) {
         $tagToProfile = @{
             low = "fast"; fast = "fast";
-            medium = "deep"; balanced = "deep";
+            medium = "deep"; balanced = "deep"; standard = "standard";
             high = "deep"; deep = "deep";
             xhigh = "max"; max = "max";
             review = "review"
@@ -398,7 +407,7 @@ function Select-CodexGear {
     if ($normalized -match "\[(low|fast)\]" -or $normalized -match "\b--(low|fast)\b") {
         return "fast"
     }
-    if ($normalized -match "\[(medium|balanced)\]" -or $normalized -match "\b--(medium|balanced)\b") {
+    if ($normalized -match "\[(medium|balanced|standard)\]" -or $normalized -match "\b--(medium|balanced|standard)\b") {
         return "balanced"
     }
     if ($normalized -match "\[(high|deep)\]" -or $normalized -match "\b--(high|deep)\b") {

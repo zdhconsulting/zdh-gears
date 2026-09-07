@@ -82,7 +82,7 @@ function Set-PluginEnabled {
         $text += $replacement
     }
 
-    Set-Content -LiteralPath $Path -Value ($text.TrimEnd() + "`r`n") -Encoding utf8NoBOM
+    Set-Content -LiteralPath $Path -Value ($text.TrimEnd() + "`r`n") -Encoding UTF8
 }
 
 function Set-PersonalMarketplace {
@@ -129,7 +129,7 @@ function Set-PersonalMarketplace {
     $marketplace.plugins = $plugins
 
     $json = $marketplace | ConvertTo-Json -Depth 12
-    Set-Content -LiteralPath $Path -Value ($json.TrimEnd() + "`r`n") -Encoding utf8NoBOM
+    Set-Content -LiteralPath $Path -Value ($json.TrimEnd() + "`r`n") -Encoding UTF8
 }
 
 Copy-PluginSource -Source $pluginSource -Destination $userPluginPath
